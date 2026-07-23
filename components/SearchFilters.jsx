@@ -1,15 +1,21 @@
-import { Search, Filter } from "lucide-react";
+import { Search } from "lucide-react";
 
-export default function SearchFilters({ onFilterChange, filters }) {
+export default function SearchFilters({ onFilterChange }) {
     return (
+        // div اصلی برای استراکچر بخش
         <div className="bg-white p-6 rounded-[2.5rem] shadow-lg border border-gray-100 mb-10 space-y-4">
+            {/*بخش فیلتر ها شامل ورودی و 3 تا select */}
             <div className="flex flex-wrap gap-4">
+                {/*شامل آیکون و ورودی تکست */}
                 <div className="relative flex-1 min-w-250px">
+                    {/*آیکون جستجو*/}
                     <Search className="absolute right-4 top-3.5 text-gray-400" size={18} />
+                    {/* بخش ورود اسم فیلم و سریال*/}
                     <input
                         type="text"
                         placeholder="نام فیلم یا سریال..."
                         className="w-full pr-12 pl-4 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-red-500 outline-none transition-all"
+                        // ارسال اسم فیلتر با دیتا به کامپوننت والد
                         onChange={(e) => onFilterChange('title', e.target.value)}
                     />
                 </div>

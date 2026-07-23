@@ -8,9 +8,17 @@ export default function MovieCard({ movie }) {
 
 
     return (
+        // ارسال اطلاعات فیلم برای صفحه نمایش جزئیات در صورت کلیک کردن روی پوستر فیلم
         <Link href={`/movies/${movie.slug}`} className="group block h-full">
-            <div className="relative bg-white rounded-[2.5rem] overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-gray-100 flex flex-col h-full">
+
+            <div className="relative bg-white rounded-[2.5rem] overflow-hidden shadow-sm
+            hover:shadow-2xl
+            transition-all
+            duration-500 border
+             border-gray-100 flex flex-col h-full">
+                {/*پوستر فیلم*/}
                 <div className="relative aspect-2/3 w-full overflow-hidden rounded-t-[2.5rem]">
+                    {/*تصویر فیلم/سریال به صورت کامل*/}
                     <Image
                         src={movie.image}
                         alt={movie.title}
@@ -18,19 +26,27 @@ export default function MovieCard({ movie }) {
                         height={600}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                     />
-
-                    <div className={`absolute top-6 -right-10 rotate-45 w-32 py-1 z-20 text-center text-[10px] font-black shadow-md uppercase tracking-wider ${badgeColor}`}>
+                    {/*نمایش نوع سرگرمی (فیلم یا سریال)*/}
+                    <div className={`absolute top-6 -right-10 rotate-45 
+                    w-32 
+                    py-1 z-20 
+                    text-center text-[10px] font-black 
+                    shadow-md uppercase 
+                    tracking-wider ${badgeColor}`}>
                         {movie.type === 'series' ? 'سریال' : 'فیلم'}
                     </div>
 
+                    {/*سایه مشکی با شفافیت 90 برای جذابیت بیشتر*/}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-90" />
 
+                    {/*نمایش امتیاز imdb*/}
                     <div className="absolute bottom-4 left-4 bg-black/40 backdrop-blur-md px-2.5 py-1 rounded-xl border border-white/15 flex items-center gap-1">
                         <span className="text-white text-xs font-bold">{movie.imdb}</span>
+                        {/*آیکون ستاره*/}
                         <Star size={12} className="text-yellow-400 fill-yellow-400" />
                     </div>
                 </div>
-
+                {/*جزئیات فیلم یا سریال*/}
                 <div className="p-6 flex flex-col flex-grow text-right bg-white rounded-b-[2.5rem]" dir="rtl">
                     <h3 className="text-base font-extrabold text-gray-900 group-hover:text-red-600 transition-colors line-clamp-1">
                         {movie.title}

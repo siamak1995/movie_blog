@@ -1,3 +1,4 @@
+// دریافت اطلاعات از جیسون
 import { movies } from "@/data/movies";
 import HomeContent from "./HomeContent"; // این کامپوننت کلاینت ما خواهد بود
 
