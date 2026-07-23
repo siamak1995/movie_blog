@@ -5,7 +5,8 @@ import Rating from "@/components/Rating";
 import CommentSection from "@/components/CommentSection";
 import Image from "next/image";
 
-export async function generateMetadata({params}: { params: Promise<{ slug: string }> }) {
+// تابع تولید متادیتا به صورت داینامیک
+export async function generateMetadata({params}) {
     const {slug} = await params;
     const movie = movies.find(m => m.slug.toLowerCase() === slug.toLowerCase());
 
@@ -14,10 +15,11 @@ export async function generateMetadata({params}: { params: Promise<{ slug: strin
     };
 }
 
-export default async function MoviePage({params}: { params: Promise<{ slug: string }> }) {
+// کامپوننت اصلی صفحه (Server Component)
+export default async function MoviePage({params}) {
     const {slug} = await params;
 
-    const movie = movies.find((m: any) =>
+    const movie = movies.find((m) =>
         m.slug.toLowerCase() === decodeURIComponent(slug).toLowerCase()
     );
 
@@ -27,6 +29,7 @@ export default async function MoviePage({params}: { params: Promise<{ slug: stri
         <main className="max-w-6xl mx-auto p-6 mt-16 text-right" dir="rtl">
             <article className="bg-white rounded-[3rem] p-8 md:p-12 shadow-sm border border-gray-100">
                 <div className="flex flex-col md:flex-row gap-12 items-start">
+                    {/* بخش تصویر فیلم */}
                     <div className="w-full md:w-1/3 rounded-[2.5rem] overflow-hidden shadow-2xl shrink-0">
                         <Image
                             src={movie.image}
@@ -37,6 +40,7 @@ export default async function MoviePage({params}: { params: Promise<{ slug: stri
                         />
                     </div>
 
+                    {/* بخش جزئیات فیلم */}
                     <div className="flex-1 space-y-6">
                         <h1 className="text-5xl font-black text-gray-900 leading-tight">{movie.title}</h1>
 
@@ -66,6 +70,8 @@ export default async function MoviePage({params}: { params: Promise<{ slug: stri
                     </div>
                 </div>
             </article>
+
+            {/* بخش کامنت‌ها */}
             <section className="w-full py-20 border-t border-gray-100">
                 <CommentSection movieId={movie.id}/>
             </section>

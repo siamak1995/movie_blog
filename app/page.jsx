@@ -1,14 +1,13 @@
-import { Metadata } from "next";
 import { movies } from "@/data/movies";
 import HomeContent from "./HomeContent"; // این کامپوننت کلاینت ما خواهد بود
 
-export const metadata: Metadata = {
+export const metadata = {
     title: 'مووی‌لاگ | مرجع نقد و بررسی فیلم و سریال',
     description: 'پلتفرم تخصصی ثبت تجربه تماشای فیلم',
 }
 
 export default function Home() {
-    // در آینده اینجا دیتای دیتابیس را fetch می‌کنیم
+    // در آینده دیتای دیتابیس را fetch می‌کنیم
     // const movies = await getMovies();
 
     return (

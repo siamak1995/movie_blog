@@ -4,7 +4,7 @@ import { useState } from "react";
 import MovieCard from "@/components/MovieCard";
 import SearchFilters from "@/components/SearchFilters";
 
-export default function HomeContent({ initialMovies }: { initialMovies: any[] }) {
+export default function HomeContent({ initialMovies }) {
     const [criteria, setCriteria] = useState({
         title: '',
         type: '',
@@ -13,7 +13,7 @@ export default function HomeContent({ initialMovies }: { initialMovies: any[] })
         year: ''
     });
 
-    const handleFilterChange = (key: string, value: string) => {
+    const handleFilterChange = (key, value) => {
         setCriteria(prev => ({ ...prev, [key]: value }));
     };
 
