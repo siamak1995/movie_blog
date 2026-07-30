@@ -2,80 +2,73 @@ import { NextResponse } from "next/server";
 import fs from "fs/promises";
 import path from "path";
 
-// هاست‌های ممکن برای دریافت فایل تصویر از TMDb
-const HOSTS = [
-    "https://image.tmdb.org/t/p",
-    "https://media.themoviedb.org/t/p",
-];
+export const runtime = "nodejs";
 
-// این route تصویر TMDb را دانلود می‌کند، داخل public ذخیره می‌کند و بعد همان فایل local را برمی‌گرداند
+// لیست هاست‌ها برای تلاش اول و دوم
+const PRIMARY_HOSTS = ["https://image.tmdb.org/t/p", "https://media.themoviedb.org/t/p"];
+const FALLBACK_URL = "https://images.weserv.nl/?url=";
+
 export async function GET(req) {
-    // خواندن query string از درخواست
     const { searchParams } = new URL(req.url);
-
-    // مسیر تصویر در TMDb، مثل /abc123.jpg
     const imagePath = searchParams.get("path");
-
-    // سایز تصویر؛ اگر ارسال نشود w500 استفاده می‌شود
     const size = searchParams.get("size") || "w500";
 
-    // بدون path امکان ساخت URL تصویر وجود ندارد
-    if (!imagePath) {
-        return new NextResponse("Bad Request", { status: 400 });
+    if (!imagePath || imagePath === "null" || imagePath === "undefined") {
+        return NextResponse.redirect(new URL("/images/placeholder.svg", req.url));
     }
 
-    // استخراج اسم فایل از انتهای مسیر تصویر
-    const fileName = imagePath.split("/").pop();
-
-    // مسیر پوشه‌ای که تصاویر دانلودشده داخل public ذخیره می‌شوند
-    const saveDir = path.join(process.cwd(), "public", "images", "banner");
-
-    // مسیر کامل فایل روی دیسک
+    const fileName = `${size}_${imagePath.split("/").pop()}`;
+    const saveDir = path.join(process.cwd(), "public", "images", "movieImages");
     const saveFile = path.join(saveDir, fileName);
 
-    // اگر تصویر قبلا دانلود شده باشد، دیگر دوباره از TMDb گرفته نمی‌شود
+    // ۱. چک کردن کش محلی
     try {
         await fs.access(saveFile);
-
-        // هدایت درخواست به فایل local داخل public
-        return NextResponse.redirect(
-            new URL(`/images/banner/${fileName}`, req.url)
-        );
+        return NextResponse.redirect(new URL(`/images/movieImages/${fileName}`, req.url));
     } catch {}
 
-    // اگر پوشه ذخیره‌سازی وجود نداشته باشد، ساخته می‌شود
-    await fs.mkdir(saveDir, { recursive: true });
+    // ایجاد پوشه در صورت عدم وجود
+    try { await fs.mkdir(saveDir, { recursive: true }); } catch {}
 
-    // تلاش برای دانلود تصویر از هاست‌های تعریف‌شده
-    for (const host of HOSTS) {
-        // ساخت آدرس نهایی تصویر در TMDb
-        const url = `${host}/${size}${imagePath}`;
+    let buffer = null;
+    let contentType = "image/jpeg";
 
+    // ۲. تلاش برای دانلود از TMDb (مستقیم)
+    for (const host of PRIMARY_HOSTS) {
         try {
-            // دریافت تصویر از TMDb
-            const res = await fetch(url);
-
-            // اگر این هاست پاسخ موفق نداد، هاست بعدی امتحان می‌شود
-            if (!res.ok) continue;
-
-            // تبدیل خروجی تصویر به Buffer برای ذخیره روی دیسک
-            const buffer = Buffer.from(await res.arrayBuffer());
-
-            // ذخیره تصویر داخل public/images/banner
-            await fs.writeFile(saveFile, buffer);
-
-            // برگرداندن همان تصویر دانلودشده به مرورگر
-            return new NextResponse(buffer, {
-                headers: {
-                    "Content-Type": res.headers.get("content-type") || "image/jpeg",
-                    "Cache-Control": "public,max-age=31536000,immutable",
-                },
-            });
-        } catch {}
+            const res = await fetch(`${host}/${size}${imagePath}`, { cache: "no-store" });
+            if (res.ok) {
+                buffer = Buffer.from(await res.arrayBuffer());
+                contentType = res.headers.get("content-type") || "image/jpeg";
+                break;
+            }
+        } catch (e) {
+            console.log("Direct fetch failed, trying fallback...");
+        }
     }
 
-    // اگر هیچ هاستی تصویر را نداد، تصویر جایگزین نمایش داده می‌شود
-    return NextResponse.redirect(
-        new URL("/images/placeholder.svg", req.url)
-    );
+    // ۳. اگر مستقیم نشد، از weserv استفاده کن (به عنوان نجات‌دهنده)
+    if (!buffer) {
+        try {
+            const fallbackUrl = `${FALLBACK_URL}${encodeURIComponent(`https://image.tmdb.org/t/p/${size}${imagePath}`)}`;
+            const res = await fetch(fallbackUrl);
+            if (res.ok) {
+                buffer = Buffer.from(await res.arrayBuffer());
+                contentType = res.headers.get("content-type") || "image/jpeg";
+            }
+        } catch (e) {
+            console.error("Fallback also failed");
+        }
+    }
+
+    // ۴. اگر موفق شدیم، ذخیره کن و نمایش بده
+    if (buffer) {
+        await fs.writeFile(saveFile, buffer);
+        return new NextResponse(buffer, {
+            status: 200,
+            headers: { "Content-Type": contentType },
+        });
+    }
+
+    return NextResponse.redirect(new URL("/images/placeholder.svg", req.url));
 }
