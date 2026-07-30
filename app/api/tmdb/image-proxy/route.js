@@ -4,71 +4,159 @@ import path from "path";
 
 export const runtime = "nodejs";
 
-// لیست هاست‌ها برای تلاش اول و دوم
-const PRIMARY_HOSTS = ["https://image.tmdb.org/t/p", "https://media.themoviedb.org/t/p"];
-const FALLBACK_URL = "https://images.weserv.nl/?url=";
-
 export async function GET(req) {
+
     const { searchParams } = new URL(req.url);
+
     const imagePath = searchParams.get("path");
     const size = searchParams.get("size") || "w500";
 
-    if (!imagePath || imagePath === "null" || imagePath === "undefined") {
-        return NextResponse.redirect(new URL("/images/placeholder.svg", req.url));
+
+    if (!imagePath || imagePath === "null") {
+        return NextResponse.redirect(
+            new URL("/images/placeholder.svg", req.url)
+        );
     }
 
-    const fileName = `${size}_${imagePath.split("/").pop()}`;
-    const saveDir = path.join(process.cwd(), "public", "images", "movieImages");
-    const saveFile = path.join(saveDir, fileName);
 
-    // ۱. چک کردن کش محلی
+    const cleanPath = imagePath.startsWith("/")
+        ? imagePath.substring(1)
+        : imagePath;
+
+
+    const fileName =
+        `${size}_${cleanPath.replaceAll("/", "_")}.webp`;
+
+
+    const cacheDir =
+        path.join(
+            process.cwd(),
+            "public",
+            "images",
+            "movieImages"
+        );
+
+
+    const cacheFile =
+        path.join(cacheDir, fileName);
+
+
+
+    // خواندن از کش
     try {
-        await fs.access(saveFile);
-        return NextResponse.redirect(new URL(`/images/movieImages/${fileName}`, req.url));
+
+        const cached = await fs.readFile(cacheFile);
+
+        return new NextResponse(cached, {
+            headers:{
+                "Content-Type":"image/webp",
+                "Cache-Control":"public,max-age=31536000"
+            }
+        });
+
+
     } catch {}
 
-    // ایجاد پوشه در صورت عدم وجود
-    try { await fs.mkdir(saveDir, { recursive: true }); } catch {}
 
-    let buffer = null;
-    let contentType = "image/jpeg";
 
-    // ۲. تلاش برای دانلود از TMDb (مستقیم)
-    for (const host of PRIMARY_HOSTS) {
-        try {
-            const res = await fetch(`${host}/${size}${imagePath}`, { cache: "no-store" });
-            if (res.ok) {
-                buffer = Buffer.from(await res.arrayBuffer());
-                contentType = res.headers.get("content-type") || "image/jpeg";
-                break;
+    try {
+
+
+        await fs.mkdir(
+            cacheDir,
+            {
+                recursive:true
             }
-        } catch (e) {
-            console.log("Direct fetch failed, trying fallback...");
-        }
-    }
+        );
 
-    // ۳. اگر مستقیم نشد، از weserv استفاده کن (به عنوان نجات‌دهنده)
-    if (!buffer) {
-        try {
-            const fallbackUrl = `${FALLBACK_URL}${encodeURIComponent(`https://image.tmdb.org/t/p/${size}${imagePath}`)}`;
-            const res = await fetch(fallbackUrl);
-            if (res.ok) {
-                buffer = Buffer.from(await res.arrayBuffer());
-                contentType = res.headers.get("content-type") || "image/jpeg";
+
+
+        const tmdbUrl =
+            `https://image.tmdb.org/t/p/${size}/${cleanPath}`;
+
+
+
+        const proxyUrl =
+            `https://images.weserv.nl/?url=${encodeURIComponent(tmdbUrl)}&output=webp&q=85`;
+
+
+
+        const controller =
+            new AbortController();
+
+
+        const timeout =
+            setTimeout(
+                ()=>controller.abort(),
+                8000
+            );
+
+
+
+        const response =
+            await fetch(
+                proxyUrl,
+                {
+                    signal:controller.signal
+                }
+            );
+
+
+        clearTimeout(timeout);
+
+
+
+        if(!response.ok){
+
+            throw new Error(
+                "Image download failed"
+            );
+
+        }
+
+
+
+        const buffer =
+            Buffer.from(
+                await response.arrayBuffer()
+            );
+
+
+
+        await fs.writeFile(
+            cacheFile,
+            buffer
+        );
+
+
+
+        return new NextResponse(
+            buffer,
+            {
+                headers:{
+                    "Content-Type":"image/webp",
+                    "Cache-Control":"public,max-age=31536000"
+                }
             }
-        } catch (e) {
-            console.error("Fallback also failed");
-        }
+        );
+
+
+
+    }catch(error){
+
+        console.error(
+            "IMAGE CACHE ERROR:",
+            error.message
+        );
+
+
+        return NextResponse.redirect(
+            new URL(
+                "/images/placeholder.svg",
+                req.url
+            )
+        );
+
     }
 
-    // ۴. اگر موفق شدیم، ذخیره کن و نمایش بده
-    if (buffer) {
-        await fs.writeFile(saveFile, buffer);
-        return new NextResponse(buffer, {
-            status: 200,
-            headers: { "Content-Type": contentType },
-        });
-    }
-
-    return NextResponse.redirect(new URL("/images/placeholder.svg", req.url));
 }

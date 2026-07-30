@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Search, X } from "lucide-react";
 import { movies } from "@/app/api/movies/movies";
+import SearchResultItem from "./Search/SearchResultItem";
 
 // کامپوننت نوار بالای سایت
 export default function Navbar() {
@@ -115,32 +116,11 @@ export default function Navbar() {
                                         onClick={() => setSearch("")}
                                         className="flex items-center gap-3 border-b border-white/5 p-3 transition hover:bg-white/5 last:border-none"
                                     >
-                                        {/* تصویر فیلم یا سریال */}
-                                        <img
-                                            src={movie.image || "/images/placeholder.svg"}
-                                            alt={movie.title}
-                                            className="h-16 w-11 rounded-lg object-cover"
+                                        <SearchResultItem
+                                            key={movie.id}
+                                            movie={movie}
+                                            onClick={() => setSearch("")}
                                         />
-
-                                        {/* اطلاعات هر نتیجه */}
-                                        <div className="flex-1">
-                                            {/* عنوان فارسی */}
-                                            <div className="font-bold text-white">
-                                                {movie.titleFa}
-                                            </div>
-
-                                            {/* عنوان اصلی */}
-                                            <div className="mt-1 text-xs text-white/45">
-                                                {movie.title}
-                                            </div>
-
-                                            {/* سال تولید و ژانر */}
-                                            <div className="mt-2 flex gap-2 text-[11px] text-white/35">
-                                                <span>{movie.year}</span>
-                                                <span>•</span>
-                                                <span>{movie.genre}</span>
-                                            </div>
-                                        </div>
                                     </Link>
                                 ))}
                             </div>
