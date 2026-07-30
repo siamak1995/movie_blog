@@ -1,19 +1,10 @@
-// دریافت اطلاعات از جیسون
-import { movies } from "@/data/movies";
-import HomeContent from "./HomeContent"; // این کامپوننت کلاینت ما خواهد بود
-
-export const metadata = {
-    title: 'مووی‌لاگ | مرجع نقد و بررسی فیلم و سریال',
-    description: 'پلتفرم تخصصی ثبت تجربه تماشای فیلم',
-}
+import HomeContent from "./HomeContent";
+import { movies as staticMovies } from "./api/movies/movies";
 
 export default function Home() {
-    // در آینده دیتای دیتابیس را fetch می‌کنیم
-    // const movies = await getMovies();
-
     return (
-        <main className="p-8 mt-20">
-            <HomeContent initialMovies={movies} />
+        <main className="min-h-screen bg-[#101010]">
+            <HomeContent initialMovies={staticMovies} />
         </main>
     );
 }

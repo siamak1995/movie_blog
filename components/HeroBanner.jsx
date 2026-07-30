@@ -1,123 +1,170 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
-import Image from "next/image";
-import { Play, Heart, ChevronRight, ChevronLeft } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { ChevronLeft, ChevronRight, Info, Play } from "lucide-react";
 
-export default function HeroBanner({ featuredMovies = [] }) {
+const AUTO_SLIDE_DELAY = 6000;
+
+const HeroBanner = ({ movies = [] }) => {
+    // فقط فیلم‌ها و سریال‌های ویژه برای اسلایدر
+    const featuredMovies = useMemo(() => {
+        return movies.filter((movie) => movie.isFeatured);
+    }, [movies]);
+
+    // اندیس اسلاید جاری
     const [currentIndex, setCurrentIndex] = useState(0);
 
-    if (!featuredMovies || featuredMovies.length === 0) return null;
+    // جلوگیری از خطا هنگام خالی بودن لیست
+    useEffect(() => {
+        if (currentIndex >= featuredMovies.length) {
+            setCurrentIndex(0);
+        }
+    }, [featuredMovies, currentIndex]);
 
+    // اسلاید خودکار
+    useEffect(() => {
+        if (featuredMovies.length <= 1) return;
+
+        const timer = setInterval(() => {
+            setCurrentIndex((prev) => (prev + 1) % featuredMovies.length);
+        }, AUTO_SLIDE_DELAY);
+
+        return () => clearInterval(timer);
+    }, [featuredMovies]);
+
+    // در صورت نبود فیلم ویژه
+    if (!featuredMovies.length) return null;
+
+    // فیلم جاری
     const movie = featuredMovies[currentIndex];
 
-    const handleNext = () => {
+    // تصویر پس زمینه
+    const bannerSrc =
+        movie.bannerImage ||
+        movie.image ||
+        "/images/placeholder.svg";
+
+    // رفتن به اسلاید بعد
+    const nextSlide = () => {
         setCurrentIndex((prev) => (prev + 1) % featuredMovies.length);
     };
 
-    const handlePrev = () => {
-        setCurrentIndex(
-            (prev) => (prev - 1 + featuredMovies.length) % featuredMovies.length
+    // رفتن به اسلاید قبل
+    const prevSlide = () => {
+        setCurrentIndex((prev) =>
+            prev === 0 ? featuredMovies.length - 1 : prev - 1
         );
     };
 
     return (
-        <section className="relative w-full mb-10 px-4 md:px-0" dir="rtl">
-            <div
-                className="relative w-full rounded-[2rem] overflow-hidden"
-                style={{ height: "clamp(450px, 50vw, 600px)" }}
-            >
-                <Image
-                    src={movie.bannerImage || movie.image || "/placeholder.jpg"}
-                    alt={movie.titleFa || movie.title || "Movie banner"}
-                    fill
-                    priority
-                    sizes="100vw"
-                    className="object-cover object-center"
-                />
+        // سکشن اصلی بنر
+        <section
+            className="relative h-[55vh] sm:h-[60vh] md:h-[70vh] lg:h-[80vh] xl:h-[90vh] w-full overflow-hidden bg-[#0F0F0F]"
+            dir="rtl"
+        >
+            {/* تصویر پس زمینه */}
+            <img
+                key={movie.id}
+                src={bannerSrc}
+                alt={movie.titleFa || movie.title}
+                className="absolute inset-0 h-full w-full object-cover transition-all duration-700"
+                onError={(e) => {
+                    e.currentTarget.src = "/images/placeholder.svg";
+                }}
+            />
 
-                <div className="absolute inset-0 z-10 bg-gradient-to-t from-gray-950 via-gray-950/40 to-transparent md:bg-gradient-to-r md:from-gray-950 md:via-gray-950/60 md:to-transparent" />
+            {/* لایه تاریک */}
+            <div className="absolute inset-0 bg-black/35" />
 
-                <div className="absolute inset-0 z-20 flex max-w-3xl flex-col justify-end p-8 text-right md:justify-center md:p-16">
-                    {movie.title && (
-                        <h2 className="mb-1 font-sans text-lg font-medium uppercase tracking-widest text-white/50 md:text-2xl">
-                            {movie.title}
-                        </h2>
-                    )}
+            {/* گرادینت پایین */}
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0F0F0F] via-[#0F0F0F]/30 to-transparent" />
 
-                    <h1 className="mb-4 text-3xl font-black tracking-tight text-white md:text-5xl">
+            {/* محتوای بنر */}
+            <div className="absolute inset-0 z-10 flex items-end">
+                <div className="w-full max-w-[1800px] mx-auto px-5 sm:px-8 md:px-10 lg:px-16 pb-10 sm:pb-14 md:pb-20 lg:pb-24">
+
+                    {/* عنوان */}
+                    <h1 className="mb-4 max-w-2xl text-2xl font-black leading-tight text-white sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl">
                         {movie.titleFa || movie.title}
                     </h1>
 
-                    <div className="mb-8 flex flex-wrap items-center gap-3">
-                        {movie.ageRating && (
-                            <span className="rounded-lg border border-orange-500/30 bg-orange-500/20 px-2 py-1 text-xs font-bold text-orange-400">
-                {movie.ageRating}
-              </span>
-                        )}
+                    {/* توضیحات */}
+                    <p className="mb-8 max-w-2xl text-sm leading-8 text-white/80 md:text-base">
+                        {movie.description}
+                    </p>
 
-                        {(movie.year || movie.duration) && (
-                            <span className="text-sm font-medium text-white/80">
-                {[movie.year, movie.duration].filter(Boolean).join(" • ")}
-              </span>
-                        )}
+                    {/* اطلاعات فیلم */}
+                    <div className="mb-8 flex flex-wrap items-center gap-4 text-sm text-white/75">
 
-                        {movie.imdb && (
-                            <div className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-black/40 px-2 py-1">
-                <span className="text-sm font-bold text-yellow-400">
-                  {movie.imdb}
-                </span>
-                                <span className="text-[10px] font-bold text-white/50">
-                  IMDb
-                </span>
-                            </div>
-                        )}
+                        <span className="rounded-full bg-white/10 px-3 py-1">
+                            ⭐ {movie.imdb}
+                        </span>
+
+                        <span>{movie.year}</span>
+
+                        <span>{movie.genre}</span>
+
+                        <span>{movie.duration}</span>
+
+                        <span>{movie.ageRating}</span>
+
                     </div>
 
-                    <div className="flex items-center gap-4">
-                        {movie.slug && (
-                            <Link
-                                href={`/movies/${movie.slug}`}
-                                className="flex items-center justify-center gap-2 rounded-2xl bg-white px-8 py-4 font-extrabold text-black shadow-xl transition-all hover:scale-105 hover:bg-blue-600 hover:text-white active:scale-95"
-                            >
-                                <Play size={20} className="fill-current" />
-                                <span>مشاهده فیلم</span>
-                            </Link>
-                        )}
+                    {/* دکمه ها */}
+                    <div className="flex flex-wrap gap-4">
 
                         <button
-                            type="button"
-                            aria-label="افزودن به علاقه‌مندی‌ها"
-                            className="rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur-md transition-all hover:bg-white/20"
+                            className="flex items-center gap-2 rounded-lg bg-[#E50914] px-5 py-2 font-bold text-white transition-all hover:bg-[#b80710] sm:px-6 sm:py-3 lg:px-8"
                         >
-                            <Heart size={24} className="text-white" />
+                            <Play size={20} fill="currentColor" />
+                            پخش فیلم
                         </button>
+
+                        <button
+                            className="flex items-center gap-2 rounded-lg bg-white/10 px-5 py-2 font-bold text-white backdrop-blur-md transition-all hover:bg-white/20 sm:px-6 sm:py-3 lg:px-8"
+                        >
+                            <Info size={20} />
+                            اطلاعات بیشتر
+                        </button>
+
                     </div>
                 </div>
+            </div>
 
-                {featuredMovies.length > 1 && (
-                    <div className="absolute bottom-8 left-8 z-30 flex items-center gap-3">
-                        <button
-                            type="button"
-                            onClick={handlePrev}
-                            aria-label="فیلم قبلی"
-                            className="flex h-12 w-12 cursor-pointer items-center justify-center rounded-2xl border border-white/10 bg-black/40 text-white backdrop-blur-xl transition-all hover:bg-white hover:text-black"
-                        >
-                            <ChevronRight size={24} />
-                        </button>
+            {/* دکمه قبلی */}
+            <button
+                onClick={prevSlide}
+                className="absolute left-4 top-1/2 z-20 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur transition-all hover:bg-black/70"
+            >
+                <ChevronLeft size={26} />
+            </button>
 
-                        <button
-                            type="button"
-                            onClick={handleNext}
-                            aria-label="فیلم بعدی"
-                            className="flex h-12 w-12 cursor-pointer items-center justify-center rounded-2xl border border-white/10 bg-black/40 text-white backdrop-blur-xl transition-all hover:bg-white hover:text-black"
-                        >
-                            <ChevronLeft size={24} />
-                        </button>
-                    </div>
-                )}
+            {/* دکمه بعدی */}
+            <button
+                onClick={nextSlide}
+                className="absolute right-4 top-1/2 z-20 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur transition-all hover:bg-black/70"
+            >
+                <ChevronRight size={26} />
+            </button>
+
+            {/* نشانگر اسلاید */}
+            <div className="absolute bottom-6 left-1/2 z-20 flex -translate-x-1/2 gap-3">
+
+                {featuredMovies.map((_, index) => (
+                    <button
+                        key={index}
+                        onClick={() => setCurrentIndex(index)}
+                        className={`h-3 rounded-full transition-all duration-300 ${
+                            currentIndex === index
+                                ? "w-10 bg-[#E50914]"
+                                : "w-3 bg-white/40"
+                        }`}
+                    />
+                ))}
+
             </div>
         </section>
     );
-}
+};
+
+export default HeroBanner;

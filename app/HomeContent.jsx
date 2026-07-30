@@ -1,64 +1,142 @@
-// این یک کامپوننت کلاینت ساید است چون از useState برای مدیریت فیلترها استفاده می‌کند
 "use client";
 
-import { useState } from "react";
-import SearchFilters from "../components/SearchFilters";
-import MovieCard from "../components/MovieCard";
-import HeroBanner from "../components/HeroBanner";
+import HeroBanner from "@/components/HeroBanner";
+import MovieCard from "@/components/MovieCard";
+import { useMoviesWithTmdb } from "@/hooks/useMoviesWithTmdb";
+
+/**
+ * ترتیب نمایش دسته‌ها
+ * هر ژانری که داخل دیتابیس وجود داشته باشد
+ * به صورت خودکار نمایش داده می‌شود.
+ */
+const GENRE_ORDER = [
+    "اکشن",
+    "درام",
+    "جنایی",
+    "معمایی",
+    "علمی‌تخیلی",
+    "فانتزی",
+    "کمدی",
+    "ترسناک",
+    "ماجراجویی",
+    "انیمیشن",
+];
+
+/**
+ * تعداد کارت هر ردیف
+ */
+const MAX_ITEMS = 12;
 
 export default function HomeContent({ initialMovies }) {
+    const { movies } = useMoviesWithTmdb(initialMovies);
 
-    // جداسازی فیلم‌هایی که قرار است در ویترین بالای صفحه نمایش داده شوند
-    const featuredMovies = initialMovies.filter(movie => movie.isFeatured);
+    /**
+     * فیلم‌های ویژه
+     */
+    const featuredMovies = movies.filter((movie) => movie.isFeatured);
 
-    
-    // ابجکت جستجو
-    const [criteria, setCriteria] = useState({
-        title: '',
-        type: '',
-        genre: '',
-        imdb: ''
+    /**
+     * گروه‌بندی فیلم‌ها بر اساس ژانر
+     */
+    const genreSections = {};
+
+    movies.forEach((movie) => {
+        const genre = movie.genre || "سایر";
+
+        if (!genreSections[genre]) {
+            genreSections[genre] = [];
+        }
+
+        genreSections[genre].push(movie);
     });
 
-    // ثبت اطلاعات ووردی کاربر در محل جستجو
-    const handleFilterChange = (key, value) => {
-        // افزودن فیلتر به محدوده جستجو
-        setCriteria(prev => ({ ...prev, [key]: value }));
-    };
-
-    // انجام جستجو بر روی پراپس ورودی فیلم ها
-    // استفاده از includes و parseFloat برای جستجو
-    const filteredData = initialMovies.filter(movie => {
-        const matchTitle = movie.title.toLowerCase().includes(criteria.title.toLowerCase());
-        const matchType = criteria.type === '' || movie.type === criteria.type;
-        const matchGenre = criteria.genre === '' || movie.genre.includes(criteria.genre);
-        const matchImdb = criteria.imdb === '' || movie.imdb >= parseFloat(criteria.imdb);
-        return matchTitle && matchType && matchGenre && matchImdb;
-    });
+    /**
+     * مرتب‌سازی ژانرها
+     */
+    const orderedGenres = [
+        ...GENRE_ORDER.filter((g) => genreSections[g]),
+        ...Object.keys(genreSections).filter((g) => !GENRE_ORDER.includes(g)),
+    ];
 
     return (
-        <>
+        <div className="min-h-screen w-full bg-[#101010]" dir="rtl">
 
-            {/* بنر ویترین اصلی */}
-            <HeroBanner featuredMovies={featuredMovies} />
+            {/* بنر بالای صفحه */}
+            <HeroBanner movies={movies} />
 
-            {/*جدا کردن بخش جستجو*/}
-            <SearchFilters onFilterChange={handleFilterChange} />
+            <main className="mx-auto max-w-[1800px] px-4 py-12 md:px-10">
 
-             {/*بخش نمایش فیلم ها*/}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                {filteredData.map((movie) => (
-                    // نمایش فیلم
-                    <MovieCard key={movie.id} movie={movie} />
+                {/* پیشنهاد سردبیر */}
+                {featuredMovies.length > 0 && (
+                    <section className="mb-14">
+
+                        <div className="mb-6 flex items-center justify-between">
+
+                            <h2 className="text-3xl font-black text-white">
+                                ⭐ پیشنهاد سردبیر
+                            </h2>
+
+                            <span className="rounded-full bg-white/10 px-4 py-1 text-sm text-white/60">
+                                {featuredMovies.length} عنوان
+                            </span>
+
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+
+                            {featuredMovies
+                                .slice(0, MAX_ITEMS)
+                                .map((movie) => (
+                                    <MovieCard
+                                        key={movie.id}
+                                        movie={movie}
+                                    />
+                                ))}
+
+                        </div>
+
+                    </section>
+                )}
+
+                {/* نمایش فیلم‌ها بر اساس ژانر */}
+                {orderedGenres.map((genre) => (
+                    <section
+                        key={genre}
+                        className="mb-16"
+                    >
+
+                        {/* عنوان ژانر */}
+                        <div className="mb-6 flex items-center justify-between">
+
+                            <h2 className="text-3xl font-black text-white">
+                                {genre}
+                            </h2>
+
+                            <span className="rounded-full bg-white/10 px-4 py-1 text-sm text-white/60">
+                                {genreSections[genre].length} عنوان
+                            </span>
+
+                        </div>
+
+                        {/* لیست فیلم‌ها */}
+                        <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+
+                            {genreSections[genre]
+                                .slice(0, MAX_ITEMS)
+                                .map((movie) => (
+                                    <MovieCard
+                                        key={movie.id}
+                                        movie={movie}
+                                    />
+                                ))}
+
+                        </div>
+
+                    </section>
                 ))}
-            </div>
 
-            {/*برای زمانی که جستجو نتیجه ای ندارد*/}
-            {filteredData.length === 0 && (
-                <div className="text-center py-20 text-gray-400 font-bold">
-                    فیلمی با این مشخصات پیدا نشد.
-                </div>
-            )}
-        </>
+            </main>
+
+        </div>
     );
 }
