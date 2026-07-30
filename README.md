@@ -1,36 +1,63 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MovieLog
 
-## Getting Started
+MovieLog یک وب‌اپلیکیشن مدرن برای نمایش، جستجو و مشاهده جزئیات فیلم‌ها و سریال‌ها است. این پروژه با تمرکز روی تجربه کاربری، طراحی سینمایی، نمایش اطلاعات کامل آثار، اتصال به TMDb و مدیریت بهتر تصاویر ساخته شده است.
 
-First, run the development server:
+## ویژگی‌ها
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- نمایش لیست فیلم‌ها و سریال‌ها
+- نمایش بنر اصلی برای آثار ویژه
+- جستجوی فیلم‌ها و سریال‌ها از طریق Navbar
+- نمایش نتیجه جستجو با پوستر، عنوان فارسی، عنوان اصلی، سال و ژانر
+- صفحه جزئیات برای هر فیلم یا سریال
+- دریافت اطلاعات تکمیلی از TMDb
+- دریافت تصاویر از TMDb با fallback مناسب
+- استفاده از پروکسی تصویر برای کاهش خطاهای لود تصویر
+- نمایش امتیاز IMDb و اطلاعات پایه اثر
+- سیستم لایک برای آثار
+- بخش نظرات کاربران
+- امکان ثبت نظر همراه با نام و امتیاز
+- نمایش لیست نظرات هر اثر
+- طراحی RTL و مناسب زبان فارسی
+- طراحی Responsive برای موبایل، تبلت و دسکتاپ
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## تکنولوژی‌های استفاده‌شده
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Next.js
+- React
+- JavaScript
+- Tailwind CSS
+- Lucide React Icons
+- TMDb API
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## ساختار کلی پروژه
+```txt
+MovieLog/
+├── app/
+│   ├── api/
+│   │   ├── movies/
+│   │   └── tmdb/
+│   ├── movies/
+│   └── page.jsx
+├── components/
+│   ├── CommentSection.jsx
+│   ├── HeroBanner.jsx
+│   ├── HomeContent.jsx
+│   ├── LikeButton.jsx
+│   ├── MovieCard.jsx
+│   ├── Navbar.jsx
+│   ├── Rating.jsx
+│   └── SearchResultItem.jsx
+├── data/
+│   ├── comments.js
+│   └── movies.js
+├── hooks/
+│   └── useMoviesWithTmdb.js
+├── lib/
+│   └── tmdb.js
+├── public/
+│   └── images/
+└── README.md
 
-## Learn More
+## داده‌های فیلم‌ها
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+اطلاعات اصلی فیلم‌ها داخل فایل داده پروژه 

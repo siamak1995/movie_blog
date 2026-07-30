@@ -3,53 +3,58 @@
 import { useEffect, useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight, Info, Play } from "lucide-react";
 
+// مدت زمان تعویض خودکار هر اسلاید
 const AUTO_SLIDE_DELAY = 6000;
 
+// کامپوننت بنر اصلی صفحه
 const HeroBanner = ({ movies = [] }) => {
-    // فقط فیلم‌ها و سریال‌های ویژه برای اسلایدر
+    // جدا کردن فقط فیلم‌ها و سریال‌های ویژه برای نمایش در اسلایدر
     const featuredMovies = useMemo(() => {
         return movies.filter((movie) => movie.isFeatured);
     }, [movies]);
 
-    // اندیس اسلاید جاری
+    // نگهداری شماره اسلاید فعلی
     const [currentIndex, setCurrentIndex] = useState(0);
 
-    // جلوگیری از خطا هنگام خالی بودن لیست
+    // اگر تعداد آیتم‌ها تغییر کرد و اسلاید فعلی وجود نداشت، برگرد به اسلاید اول
     useEffect(() => {
         if (currentIndex >= featuredMovies.length) {
             setCurrentIndex(0);
         }
     }, [featuredMovies, currentIndex]);
 
-    // اسلاید خودکار
+    // تعویض خودکار اسلایدها
     useEffect(() => {
+        // اگر فقط یک آیتم یا کمتر داریم، اسلایدر خودکار لازم نیست
         if (featuredMovies.length <= 1) return;
 
+        // هر چند ثانیه برو به اسلاید بعدی
         const timer = setInterval(() => {
             setCurrentIndex((prev) => (prev + 1) % featuredMovies.length);
         }, AUTO_SLIDE_DELAY);
 
+        // پاک کردن تایمر هنگام خروج از کامپوننت
         return () => clearInterval(timer);
     }, [featuredMovies]);
 
-    // در صورت نبود فیلم ویژه
+    // اگر فیلم ویژه‌ای وجود نداشت، چیزی نمایش نده
     if (!featuredMovies.length) return null;
 
-    // فیلم جاری
+    // گرفتن اطلاعات فیلم فعلی
     const movie = featuredMovies[currentIndex];
 
-    // تصویر پس زمینه
+    // انتخاب تصویر بنر، اگر نبود از تصویر اصلی و در آخر از placeholder استفاده کن
     const bannerSrc =
         movie.bannerImage ||
         movie.image ||
         "/images/placeholder.svg";
 
-    // رفتن به اسلاید بعد
+    // رفتن به اسلاید بعدی
     const nextSlide = () => {
         setCurrentIndex((prev) => (prev + 1) % featuredMovies.length);
     };
 
-    // رفتن به اسلاید قبل
+    // رفتن به اسلاید قبلی
     const prevSlide = () => {
         setCurrentIndex((prev) =>
             prev === 0 ? featuredMovies.length - 1 : prev - 1
@@ -57,45 +62,44 @@ const HeroBanner = ({ movies = [] }) => {
     };
 
     return (
-        // سکشن اصلی بنر
+        // بخش اصلی بنر صفحه
         <section
             className="relative h-[55vh] sm:h-[60vh] md:h-[70vh] lg:h-[80vh] xl:h-[90vh] w-full overflow-hidden bg-[#0F0F0F]"
             dir="rtl"
         >
-            {/* تصویر پس زمینه */}
+            {/* تصویر پس‌زمینه بنر */}
             <img
                 key={movie.id}
                 src={bannerSrc}
                 alt={movie.titleFa || movie.title}
                 className="absolute inset-0 h-full w-full object-cover transition-all duration-700"
                 onError={(e) => {
+                    // اگر تصویر لود نشد، تصویر پیش‌فرض نمایش داده شود
                     e.currentTarget.src = "/images/placeholder.svg";
                 }}
             />
 
-            {/* لایه تاریک */}
+            {/* لایه تیره روی تصویر برای خواناتر شدن متن */}
             <div className="absolute inset-0 bg-black/35" />
 
-            {/* گرادینت پایین */}
+            {/* گرادینت پایین بنر برای ترکیب شدن با بک‌گراند صفحه */}
             <div className="absolute inset-0 bg-gradient-to-t from-[#0F0F0F] via-[#0F0F0F]/30 to-transparent" />
 
-            {/* محتوای بنر */}
+            {/* محتوای اصلی روی بنر */}
             <div className="absolute inset-0 z-10 flex items-end">
                 <div className="w-full max-w-[1800px] mx-auto px-5 sm:px-8 md:px-10 lg:px-16 pb-10 sm:pb-14 md:pb-20 lg:pb-24">
-
-                    {/* عنوان */}
+                    {/* عنوان فیلم یا سریال */}
                     <h1 className="mb-4 max-w-2xl text-2xl font-black leading-tight text-white sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl">
                         {movie.titleFa || movie.title}
                     </h1>
 
-                    {/* توضیحات */}
+                    {/* توضیح کوتاه فیلم یا سریال */}
                     <p className="mb-8 max-w-2xl text-sm leading-8 text-white/80 md:text-base">
                         {movie.description}
                     </p>
 
-                    {/* اطلاعات فیلم */}
+                    {/* اطلاعات کلی فیلم مثل امتیاز، سال، ژانر و مدت زمان */}
                     <div className="mb-8 flex flex-wrap items-center gap-4 text-sm text-white/75">
-
                         <span className="rounded-full bg-white/10 px-3 py-1">
                             ⭐ {movie.imdb}
                         </span>
@@ -107,31 +111,26 @@ const HeroBanner = ({ movies = [] }) => {
                         <span>{movie.duration}</span>
 
                         <span>{movie.ageRating}</span>
-
                     </div>
 
-                    {/* دکمه ها */}
+                    {/* دکمه‌های اصلی بنر */}
                     <div className="flex flex-wrap gap-4">
-
-                        <button
-                            className="flex items-center gap-2 rounded-lg bg-[#E50914] px-5 py-2 font-bold text-white transition-all hover:bg-[#b80710] sm:px-6 sm:py-3 lg:px-8"
-                        >
+                        {/* دکمه پخش فیلم */}
+                        <button className="flex items-center gap-2 rounded-lg bg-[#E50914] px-5 py-2 font-bold text-white transition-all hover:bg-[#b80710] sm:px-6 sm:py-3 lg:px-8">
                             <Play size={20} fill="currentColor" />
                             پخش فیلم
                         </button>
 
-                        <button
-                            className="flex items-center gap-2 rounded-lg bg-white/10 px-5 py-2 font-bold text-white backdrop-blur-md transition-all hover:bg-white/20 sm:px-6 sm:py-3 lg:px-8"
-                        >
+                        {/* دکمه اطلاعات بیشتر */}
+                        <button className="flex items-center gap-2 rounded-lg bg-white/10 px-5 py-2 font-bold text-white backdrop-blur-md transition-all hover:bg-white/20 sm:px-6 sm:py-3 lg:px-8">
                             <Info size={20} />
                             اطلاعات بیشتر
                         </button>
-
                     </div>
                 </div>
             </div>
 
-            {/* دکمه قبلی */}
+            {/* دکمه رفتن به اسلاید قبلی */}
             <button
                 onClick={prevSlide}
                 className="absolute left-4 top-1/2 z-20 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur transition-all hover:bg-black/70"
@@ -139,7 +138,7 @@ const HeroBanner = ({ movies = [] }) => {
                 <ChevronLeft size={26} />
             </button>
 
-            {/* دکمه بعدی */}
+            {/* دکمه رفتن به اسلاید بعدی */}
             <button
                 onClick={nextSlide}
                 className="absolute right-4 top-1/2 z-20 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur transition-all hover:bg-black/70"
@@ -147,21 +146,20 @@ const HeroBanner = ({ movies = [] }) => {
                 <ChevronRight size={26} />
             </button>
 
-            {/* نشانگر اسلاید */}
+            {/* نقطه‌های پایین بنر برای نمایش اسلاید فعال */}
             <div className="absolute bottom-6 left-1/2 z-20 flex -translate-x-1/2 gap-3">
-
                 {featuredMovies.map((_, index) => (
                     <button
                         key={index}
                         onClick={() => setCurrentIndex(index)}
                         className={`h-3 rounded-full transition-all duration-300 ${
+                            // اگر این نقطه مربوط به اسلاید فعلی بود، قرمز و کشیده شود
                             currentIndex === index
                                 ? "w-10 bg-[#E50914]"
                                 : "w-3 bg-white/40"
                         }`}
                     />
                 ))}
-
             </div>
         </section>
     );
