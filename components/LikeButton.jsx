@@ -29,6 +29,7 @@ export default function LikeButton() {
             }`}
         >
             {/* آیکون قلب */}
+            {/* آیکون قلب که وضعیت پسندیدن را به‌صورت بصری نشان می‌دهد */}
             <Heart
                 size={20}
                 className={`transition-all duration-300 ${

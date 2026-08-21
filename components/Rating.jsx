@@ -18,6 +18,7 @@ export default function Rating() {
             <div className="flex items-center gap-1.5 direction-ltr">
                 {/* ساخت پنج ستاره برای انتخاب امتیاز */}
                 {[1, 2, 3, 4, 5].map((star) => (
+                    /* هر دکمه یک امتیاز ستاره‌ای قابل انتخاب را نمایش می‌دهد */
                     <button
                         key={star}
                         type="button"

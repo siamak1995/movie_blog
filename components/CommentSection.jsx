@@ -57,9 +57,12 @@ export default function CommentSection({ movieId }) {
         <section className="w-full mt-32 mb-20 clear-both" dir="rtl">
             {/* هدر بخش نظرات */}
             <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between w-full mb-10 border-b border-gray-100 pb-8">
+                {/* عنوان و توضیح کوتاه بخش نظرات */}
                 <div className="flex items-center gap-4">
+                    {/* نوار قرمز تزئینی برای برجسته‌کردن سربرگ */}
                     <div className="w-2.5 h-10 bg-red-600 rounded-full shadow-[0_0_15px_rgba(220,38,38,0.4)]" />
 
+                    {/* متن‌های عنوان و راهنما */}
                     <div>
                         <h3 className="text-2xl sm:text-3xl font-black text-gray-900">
                             دیوار نظرات
@@ -73,7 +76,9 @@ export default function CommentSection({ movieId }) {
 
                 {/* تعداد دیدگاه‌ها */}
                 <div className="w-fit bg-gray-900 text-white px-5 py-3 rounded-2xl flex items-center gap-3 shadow-xl">
+                    {/* آیکون تعداد دیدگاه‌ها */}
                     <MessageSquare size={20} className="text-red-500" />
+                    {/* عدد دیدگاه‌های همین فیلم */}
                     <span className="text-sm sm:text-base font-black tabular-nums">
                         {movieComments.length} دیدگاه
                     </span>
@@ -82,6 +87,7 @@ export default function CommentSection({ movieId }) {
 
             {/* فرم ثبت نظر */}
             <div className="w-full mb-14 bg-white border border-gray-200 rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-8 shadow-sm">
+                {/* فرم کنترل‌شده برای ثبت نظر جدید */}
                 <form onSubmit={handleSubmit} className="flex flex-col gap-6">
                     {/* عنوان فرم */}
                     <div>
@@ -95,6 +101,7 @@ export default function CommentSection({ movieId }) {
                     </div>
 
                     {/* فیلد نام */}
+                    {/* ورودی نام نویسندهٔ نظر */}
                     <input
                         type="text"
                         placeholder="نام و نام‌خانوادگی شما"
@@ -112,6 +119,7 @@ export default function CommentSection({ movieId }) {
 
                         <div className="flex items-center gap-2 direction-ltr">
                             {[1, 2, 3, 4, 5].map((star) => (
+                                /* دکمهٔ انتخاب یک ستاره از پنج ستاره */
                                 <button
                                     key={star}
                                     type="button"
@@ -119,6 +127,7 @@ export default function CommentSection({ movieId }) {
                                     className="transition-transform active:scale-90"
                                 >
                                     {/* ستاره‌های امتیازدهی */}
+                                    {/* آیکون ستاره با رنگ متناسب با امتیاز انتخاب‌شده */}
                                     <Star
                                         size={24}
                                         fill={star <= rating ? "currentColor" : "none"}
@@ -135,6 +144,7 @@ export default function CommentSection({ movieId }) {
 
                     {/* متن نظر */}
                     <div className="relative">
+                        {/* ناحیهٔ متنی برای نوشتن دیدگاه */}
                         <textarea
                             placeholder="نظرتان را درباره این اثر بنویسید..."
                             value={newComment}
@@ -145,6 +155,7 @@ export default function CommentSection({ movieId }) {
                         />
 
                         {/* شمارنده متن نظر */}
+                        {/* شمارندهٔ تعداد نویسه‌های باقی‌مانده یا مصرف‌شده */}
                         <span className="absolute left-5 bottom-4 text-xs text-gray-400 font-bold tabular-nums">
                             {newComment.length}/500
                         </span>
@@ -152,6 +163,7 @@ export default function CommentSection({ movieId }) {
 
                     {/* دکمه ثبت */}
                     <div className="flex justify-start pt-2">
+                        {/* دکمهٔ ارسال فرم که تا تکمیل فیلدها غیرفعال است */}
                         <button
                             type="submit"
                             disabled={!canSubmit}
@@ -161,7 +173,9 @@ export default function CommentSection({ movieId }) {
                                     : "bg-gray-300 cursor-not-allowed shadow-none"
                             }`}
                         >
+                            {/* متن عملیاتی دکمهٔ ثبت */}
                             <span>ثبت نظر نهایی</span>
+                            {/* آیکون ارسال برای تکمیل ظاهر دکمه */}
                             <Send size={20} className="rotate-180" />
                         </button>
                     </div>
@@ -173,6 +187,7 @@ export default function CommentSection({ movieId }) {
                 {/* اگر نظری وجود نداشت */}
                 {movieComments.length === 0 && (
                     <div className="w-full bg-gray-50 border border-dashed border-gray-200 p-10 rounded-[2rem] text-center">
+                        {/* آیکون حالت خالی فهرست نظرات */}
                         <MessageSquare size={34} className="mx-auto text-gray-300 mb-4" />
 
                         <p className="text-gray-500 font-bold">
@@ -193,8 +208,11 @@ export default function CommentSection({ movieId }) {
                     >
                         <div className="flex flex-col gap-5 sm:flex-row sm:justify-between sm:items-start mb-6">
                             {/* اطلاعات کاربر */}
+                            {/* اطلاعات نویسنده و زمان ثبت نظر */}
                             <div className="flex items-center gap-4">
+                                {/* آواتار سادهٔ کاربر با آیکون جایگزین */}
                                 <div className="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center border border-gray-100 text-gray-400">
+                                    {/* آیکون کاربر برای آواتار پیش‌فرض */}
                                     <User size={28} />
                                 </div>
 
@@ -204,6 +222,7 @@ export default function CommentSection({ movieId }) {
                                     </h4>
 
                                     <div className="flex items-center gap-2 text-xs text-gray-400 mt-1 font-bold">
+                                        {/* آیکون ساعت کنار تاریخ نظر */}
                                         <Clock size={14} />
                                         <span>{comment.date}</span>
                                     </div>
@@ -213,6 +232,7 @@ export default function CommentSection({ movieId }) {
                             {/* نمایش امتیاز نظر */}
                             <div className="w-fit flex gap-0.5 text-yellow-400 bg-yellow-50 p-2 rounded-xl">
                                 {[1, 2, 3, 4, 5].map((star) => (
+                                    /* ستاره‌های امتیاز ثبت‌شده توسط کاربر */
                                     <Star
                                         key={star}
                                         size={15}
@@ -225,6 +245,7 @@ export default function CommentSection({ movieId }) {
 
                         {/* متن نظر */}
                         <div className="pr-5 border-r-4 border-red-500/10">
+                            {/* متن اصلی دیدگاه با تراز خوانا */}
                             <p className="text-gray-600 text-sm leading-9 text-justify font-medium">
                                 {comment.text}
                             </p>

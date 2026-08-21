@@ -44,30 +44,39 @@ export default function Navbar() {
                         href="/"
                         className="text-2xl font-black tracking-tighter text-white"
                     >
-                        Movie<span className="text-[#E50914]">Log</span>
+                        Movie{/* بخش قرمز نام تجاری سایت */}
+                        <span className="text-[#E50914]">Log</span>
                     </Link>
 
                     {/* منوهای اصلی سایت */}
                     <ul className="hidden items-center gap-6 lg:flex">
+                        {/* هر آیتم فهرست، یک گزینهٔ مستقل برای ناوبری است */}
                         <li>
+                            {/* لینک بازگشت به صفحهٔ خانه */}
                             <Link href="/" className="text-sm font-bold text-white">
                                 خانه
                             </Link>
                         </li>
 
+                        {/* گزینهٔ ورود به فهرست فیلم‌ها */}
                         <li>
+                            {/* لینک مسیر فیلم‌ها */}
                             <Link href="/movies" className="text-sm font-bold text-white/60 hover:text-white">
                                 فیلم‌ها
                             </Link>
                         </li>
 
+                        {/* گزینهٔ ورود به فهرست سریال‌ها */}
                         <li>
+                            {/* لینک مسیر سریال‌ها */}
                             <Link href="/series" className="text-sm font-bold text-white/60 hover:text-white">
                                 سریال‌ها
                             </Link>
                         </li>
 
+                        {/* گزینهٔ نمایش تازه‌ترین محتوا */}
                         <li>
+                            {/* لینک مسیر تازه‌ها */}
                             <Link href="/latest" className="text-sm font-bold text-white/60 hover:text-white">
                                 تازه‌ها
                             </Link>
@@ -80,6 +89,7 @@ export default function Navbar() {
                     {/* باکس جستجو */}
                     <div className="relative hidden w-[380px] md:block">
                         {/* آیکون سرچ داخل باکس */}
+                        {/* آیکون ثابت جست‌وجو داخل ورودی */}
                         <Search
                             size={18}
                             className="absolute right-4 top-1/2 -translate-y-1/2 text-white/40"
@@ -95,6 +105,7 @@ export default function Navbar() {
 
                         {/* دکمه پاک کردن متن سرچ */}
                         {search && (
+                            /* این دکمه فقط هنگام وجود متن، جست‌وجو را پاک می‌کند */
                             <button
                                 onClick={() => setSearch("")}
                                 className="absolute left-3 top-1/2 -translate-y-1/2"
@@ -110,12 +121,14 @@ export default function Navbar() {
                         {results.length > 0 && (
                             <div className="absolute top-[54px] right-0 left-0 overflow-hidden rounded-2xl border border-white/10 bg-[#191919] shadow-2xl">
                                 {results.map((movie) => (
+                                    /* هر نتیجه به صفحهٔ جزئیات همان فیلم لینک می‌شود */
                                     <Link
                                         key={movie.id}
                                         href={`/movies/${movie.slug}`}
                                         onClick={() => setSearch("")}
                                         className="flex items-center gap-3 border-b border-white/5 p-3 transition hover:bg-white/5 last:border-none"
                                     >
+                                        {/* جزئیات خلاصهٔ نتیجهٔ جست‌وجو */}
                                         <SearchResultItem
                                             key={movie.id}
                                             movie={movie}
